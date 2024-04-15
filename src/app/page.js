@@ -6,15 +6,21 @@ import { useState } from "react";
 export default function Home() {
   const [villagerInfo, setVillagerInfo] = useState({
     name: "",
+    species: "",
     birthdayString: "",
     zodiac: "",
-    validVillager: "",
   });
+
+  const formatName = (name) =>
+    `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 
   const handleNameChange = (event) => {
     return setVillagerInfo({
       ...villagerInfo,
       name: event.target.value,
+      species: "",
+      birthdayString: "",
+      zodiac: "",
     });
   };
 
@@ -52,11 +58,14 @@ export default function Home() {
   const handleClick = () => {
     if (Object.keys(villagers).length) {
       const [villagerBirthday] = Object.values(villagers)
-        .filter((data) => data?.name["name-USen"] === villagerInfo.name)
-        .map(({ birthday, "birthday-string": birthdayString }) => {
+        .filter(
+          (data) => data?.name["name-USen"] === formatName(villagerInfo.name)
+        )
+        .map(({ species, birthday, "birthday-string": birthdayString }) => {
           const birthdayArray = birthday.split("/");
           setVillagerInfo({
             ...villagerInfo,
+            species,
             birthdayString,
             zodiac: findZodiac(birthdayArray[0], birthdayArray[1]),
           });
@@ -64,23 +73,40 @@ export default function Home() {
     }
   };
 
+  const villagerText = () => {
+    const { name, species, birthdayString, zodiac } = villagerInfo;
+    return (
+      <div className="text-center text-2xl pt-4">
+        <span className="underline">{formatName(name)}</span> the{" "}
+        <span className="underline">{species}</span> was born on{" "}
+        <span className="underline">{birthdayString}</span> and is a(n){" "}
+        <span className="underline exta-bold">{zodiac}</span>
+      </div>
+    );
+  };
+
   return (
     <main>
-      <div className="text-5xl">
-        <h1>Villager Zodiac Sign Finder</h1>
-        <div>
+      <div className="w-screen h-screen bg-emerald-900 text-amber-100">
+        <h1 className="font-mono text-5xl text-center py-5">
+          villager zodiac sign
+        </h1>
+        <p className="font-sans italic text-center pb-5">
+          Find the zodiac sign of any of your favorite villagers! Enter the name
+          below and press submit
+        </p>
+        <div className="flex justify-center">
           <input
+            className="text-black"
             type="text"
-            placeholder="villager name here"
+            placeholder="villager's name"
             onChange={handleNameChange}
           ></input>
-          <button onClick={handleClick}>click</button>
-          <p className="text-white">{villagerInfo?.name || "invalid name"}</p>
-          <p className="text-white">
-            {villagerInfo?.birthdayString || "no birthday"}
-          </p>
-          <p className="text-white">{villagerInfo?.zodiac || "no zodiac"}</p>
+          <button className="pl-2 border-black" onClick={handleClick}>
+            submit
+          </button>
         </div>
+        {villagerInfo?.zodiac ? villagerText() : ""}
       </div>
     </main>
   );
